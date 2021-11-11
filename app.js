@@ -88,9 +88,10 @@ class Game{
             }
         }
 
-        //if(this.squares.map(e=>e.userInput).filter(e=>e==='o' || e==='x')){
-        //    this.winner = 'CAT'
-        //}
+        //check if completely filled
+        if(this.squaresInfo.map(e=>e.userInput).filter(e=>e==='o' || e==='x').length===9){
+            this.winner = 'CAT'
+        }
 
         if(this.winner){
             let winnerH1 = document.createElement('h3')
