@@ -1,0 +1,13 @@
+body{
+    background-color: aqua;
+}
+.board{
+    display:grid;
+    grid-template-columns: 100px 100px 100px;
+}
+
+.square{
+    background-color: bisque;
+    height:50px;
+    border: 5px solid black;
+}
