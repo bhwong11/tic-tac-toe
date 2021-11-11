@@ -1,10 +1,16 @@
 //for muiltple games make game a class with a facotry class that can generate multiple games
-const game ={
-    squares:document.querySelectorAll('.square'),
-    squaresInfo:[],
-    currentUser:'x',
-    winner:null,
-    populate: function(){
+let gamesCount = 0;
+
+class Game{
+    constructor(id){
+        this.id = id;
+        this.squares=[];
+        this.squaresInfo=[];
+        this.currentUser='x';
+        this.winner=null;
+    }
+    populate=function(){
+        this.squares=document.querySelectorAll(`.square-${this.id}`)
         this.squaresInfo = [];
         for(let i=0;i<this.squares.length;i++){
             this.squaresInfo.push({
@@ -13,27 +19,24 @@ const game ={
             })
             this.squares[i].addEventListener('click',(e)=>this.squareEventListener(i))
         }
-    },
-    squareEventListener:function(i){
-        this.squaresInfo[i].userInput = this.currentUser;
-        this.squares[i].innerText = this.currentUser;
-        this.checkGame();
-        this.currentUserChange();
-    },
-    removeEventListers:function(){
-        for(let i=0;i<this.squares.length;i++){
-            this.squares[i].removeEventListener('click',this.squareEventListener)
+    };
+    squareEventListener=function(i){
+        if(!this.winner){
+            this.squaresInfo[i].userInput = this.currentUser;
+            this.squares[i].innerText = this.currentUser;
+            this.checkGame();
+            this.currentUserChange();
         }
-    },
-    currentUserChange:function(){
+    };
+    currentUserChange=function(){
         if(this.currentUser==='x'){
             this.currentUser = 'o'
         }else{
             this.currentUser = 'x'
         }
-        document.querySelector('.turn').innerText=`${this.currentUser}'s turn`;
-    },
-    checkGame: function(){
+        document.querySelector(`.turn-${this.id}`).innerText=`${this.currentUser}'s turn`;
+    };
+    checkGame=function(){
 
         let winningPatterns = {
             row1:[],
@@ -76,8 +79,6 @@ const game ={
         for(let key in winningPatterns){
             let xInWinningPattern = winningPatterns[key].filter(e=>e==='x').length
             let oInWinningPattern = winningPatterns[key].filter(e=>e==='o').length
-            console.log(`WINNER ${key}`,winningPatterns[key])
-            console.log('X',xInWinningPattern)
             if(xInWinningPattern===3){
                 this.winner = 'x'
                 break 
@@ -87,26 +88,59 @@ const game ={
             }
         }
 
+        //if(this.squares.map(e=>e.userInput).filter(e=>e==='o' || e==='x')){
+        //    this.winner = 'CAT'
+        //}
+
         if(this.winner){
             let winnerH1 = document.createElement('h3')
             winnerH1.innerText = `The Winner is ${this.winner}`
-            document.querySelector('.winner').append(winnerH1)
+            document.querySelector(`.winner-${this.id}`).append(winnerH1)
         }
-    },
-    reset:()=>{
-        console.log('adfas')
-        for(let i=0;i<game.squares.length;i++){
-            game.squares[i].innerText='';
+    };
+    reset=()=>{
+        for(let i=0;i<this.squares.length;i++){
+            this.squares[i].innerText='';
+            this.squaresInfo[i].userInput=null;
         }
-        game.populate();
-        document.querySelector('.winner').innerHTML='';
-    },
-    start: ()=>{
-        game.populate();
+        document.querySelector(`.turn-${this.id}`).innerHTML='';
+        document.querySelector(`.winner-${this.id}`).innerHTML='';
+    };
+    start=()=>{
         this.currentUser = 'x'
-        document.querySelector('.turn').innerText=`${this.currentUser}'s turn`;
-    },
+        if(!this.winner){
+            this.populate();
+        }
+        this.winner = null;
+        document.querySelector(`.turn-${this.id}`).innerText=`${this.currentUser}'s turn`;
+    };
+    render=function(){
+        let gameBoard = document.createElement('div')
+        gameBoard.innerHTML = `<div class="board board${this.id}">
+            <div class="square square-${this.id} s-one"></div>
+            <div class="square square-${this.id} s-two"></div>
+            <div class="square square-${this.id} s-three"></div>
+            <div class="square square-${this.id} s-four"></div>
+            <div class="square square-${this.id} s-five"></div>
+            <div class="square square-${this.id} s-six"></div>
+            <div class="square square-${this.id} s-seven"></div>
+            <div class="square square-${this.id} s-eight"></div>
+            <div class="square square-${this.id} s-nine"></div>
+        </div>
+        <div class="start-${this.id}">Start</div>
+        <div class="reset-${this.id}">Reset</div>
+        <div class="turn-${this.id}"></div>
+        <div class="winner-${this.id}"></div>`
+
+        document.querySelector('body').append(gameBoard)
+        document.querySelector(`.start-${this.id}`).addEventListener('click',this.start)
+        document.querySelector(`.reset-${this.id}`).addEventListener('click',this.reset)
+    }
 }
 
-document.querySelector('.start').addEventListener('click',game.start)
-document.querySelector('.reset').addEventListener('click',game.reset)
+let createGame = document.querySelector('.create-game')
+createGame.addEventListener('click',function(e){
+    let game = new Game(gamesCount+1)
+    gamesCount++
+    game.render();
+})
